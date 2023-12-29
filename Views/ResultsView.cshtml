@@ -1,0 +1,36 @@
+﻿@page
+@model TaskQueueController.Pages.ResultsViewModel
+@{
+    ViewData["Title"] = "Results View";
+}
+
+<h2>Results View</h2>
+
+@if (Model.Results != null && Model.Results.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Result ID</th>
+                <th>Load Task ID</th>
+                <th>Content</th>
+                <th>Error</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var result in Model.Results)
+            {
+                <tr>
+                    <td>@result.ResultId</td>
+                    <td>@result.LoadTaskId</td>
+                    <td>@result.Content</td>
+                    <td>@result.Error</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No results found.</p>
+}
