@@ -12,6 +12,7 @@
     using ValidLoaderShared.Context;
     using ValidLoaderShared.Models;
     using ValidLoaderShared.Structs;
+    using ValidLoaderShared.Utilities;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -19,13 +20,19 @@
     {
         private readonly PageLoaderServiceContext _context; // Replace with your actual DbContext
         private readonly ConnectionFactory _factory;
-        public TaskQueueServiceController(PageLoaderServiceContext context)
+        //public TaskQueueServiceController(PageLoaderServiceContext context)
+        //{
+        //    _context = context;
+        //    _factory = new ConnectionFactory()
+        //    {
+        //        HostName = "localhost",
+        //    };
+        //}
+
+        public TaskQueueServiceController(PageLoaderServiceContext context, ConnectionFactory factory)
         {
             _context = context;
-            _factory = new ConnectionFactory()
-            {
-                HostName = "localhost",
-            };
+            _factory = factory;
         }
 
         // POST: api/TaskQueueService
@@ -41,8 +48,7 @@
                 Url = url,
                 TaskId = loadTaskId
             };
-
-            PublishTaskToQueue(loadTask);
+            RabbitMQUtilities.PublishTaskToQueue(loadTask,_factory);
 
             // Return the TID to the client
             return Ok(loadTaskId);
@@ -91,29 +97,6 @@
             }
         }
 
-        private void PublishTaskToQueue(NewLoadTask loadTask)
-        {
-            using (var connection = _factory.CreateConnection())
-            using (var channel = connection.CreateModel())
-            {
-                channel.QueueDeclare(queue: VLConstants.TaskNotificationQueue,
-                                     durable: true,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
-
-                var jsonMessage = JsonConvert.SerializeObject(loadTask);
-                var body = Encoding.UTF8.GetBytes(jsonMessage);
-
-                //string message = JsonSerializer.Serialize(loadTask);
-                //var body = System.Text.Encoding.UTF8.GetBytes(message);
-
-                channel.BasicPublish(exchange: "",
-                                     routingKey: VLConstants.TaskNotificationQueue,
-                                     basicProperties: null,
-                                     body: body);
-            }
-        }
     }
 
 }

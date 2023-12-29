@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using ValidLoaderShared.Consts;
 using ValidLoaderShared.Context;
 using ValidLoaderShared.Utilities;
@@ -27,6 +28,10 @@ try
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+
+    // Register ConnectionFactory as a singleton
+    builder.Services.AddSingleton(new ConnectionFactory() { HostName = "localhost" });
+
 
     var app = builder.Build();
 
