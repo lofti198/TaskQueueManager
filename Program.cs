@@ -4,6 +4,7 @@ using RabbitMQ.Client;
 
 using ValidLoaderShared.Consts;
 using ValidLoaderShared.Context;
+using ValidLoaderShared.MiddleWare;
 using ValidLoaderShared.Utilities;
 using ValidLoaderShared.Utilities.Logging;
 
@@ -12,7 +13,7 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    var logger = VL_LoggerFactory.CreateLogger(LogType.Console | LogType.Serilog, "TaskQueueManager");
+    var logger = VL_LoggerFactory.CreateLogger(LogType.Console | LogType.Serilog, "TaskQueueManager",false);
 
     logger.Log("TaskQueueManager Initializing...");
 
@@ -22,15 +23,6 @@ try
 
     builder.Services.AddSingleton<ISimplifiedLogger>(logger);
 
-    // builder.Host.UseSerilog(); // Use Serilog for logging
-
-
-    builder.Services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(sp =>
-    {
-        var serilogLogger = new SerilogLogger(null); // Assuming SerilogLogger is adapted to work without a decorator
-        var consoleLogger = new ConsoleLogger(serilogLogger); // Wrap Serilog with Console
-        return consoleLogger;
-    });
     // Configure the application to listen on specified ports
     builder.WebHost.UseUrls($"http://localhost:{VLConstants.TaskQueueManagerLocalPort}",
         $"https://localhost:{VLConstants.TaskQueueManagerLocalPort + 1}");
@@ -39,7 +31,7 @@ try
     Console.WriteLine($"Connecting DB with connection string: {builder.Configuration.GetConnectionString("DefaultConnection")}");
     builder.Services.AddDbContext<PageLoaderServiceContext>(options =>
         options.UseSqlServer(VLDatabaseConstants.LocalDbConnectionString));
-            //builder.Configuration.GetConnectionString("DefaultConnection")));
+           
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
@@ -50,6 +42,9 @@ try
 
 
     var app = builder.Build();
+
+    // Register the exception handling middleware
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

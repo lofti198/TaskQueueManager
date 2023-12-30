@@ -24,15 +24,6 @@
         private readonly ConnectionFactory _factory;
         private readonly ISimplifiedLogger _logger;
 
-     
-        //public TaskQueueServiceController(PageLoaderServiceContext context)
-        //{
-        //    _context = context;
-        //    _factory = new ConnectionFactory()
-        //    {
-        //        HostName = "localhost",
-        //    };
-        //}
 
         public TaskQueueServiceController(PageLoaderServiceContext context, ConnectionFactory factory, ISimplifiedLogger logger)
         {
@@ -54,7 +45,7 @@
                 Url = url,
                 TaskId = loadTaskId
             };
-            RabbitMQUtilities.PublishTaskToQueue(loadTask,_factory);
+            RabbitMQUtilities.PublishTaskToQueue(loadTask, _factory);
 
             // Return the TID to the client
             return Ok(loadTaskId);
@@ -64,19 +55,10 @@
         [HttpGet("GetAllResults")]
         public async Task<ActionResult<IEnumerable<TaskProcessingResult>>> GetAllResults()
         {
-            try
-            {
 
-                var results = await _context.Results.ToListAsync();
-                return Ok(results);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception and return an appropriate error response
-                _logger.Log(ex.Message, LogLevel.Error);
-                // For example, you can return a 500 Internal Server Error
-                return StatusCode(500, "An error occurred while retrieving the results.");
-            }
+            var results = await _context.Results.ToListAsync();
+            return Ok(results);
+
         }
 
         // Inside the TaskQueueServiceController class
@@ -84,25 +66,16 @@
         [HttpGet("CheckTaskStatus/{taskId}")]
         public async Task<ActionResult<TaskProcessingResult>> CheckTaskStatus(int taskId)
         {
-            try
-            {
-                _logger.Log($"CheckTaskStatus: {taskId}");
-                var taskResult = await _context.Results
-                                              .FirstOrDefaultAsync(r => r.LoadTaskId == taskId);
+            _logger.Log($"CheckTaskStatus: {taskId}");
+            var taskResult = await _context.Results
+                                          .FirstOrDefaultAsync(r => r.LoadTaskId == taskId);
 
-                if (taskResult == null)
-                {
-                    return NotFound($"Task with ID {taskId} not found or not yet completed.");
-                }
-
-                return Ok(taskResult);
-            }
-            catch (Exception ex)
+            if (taskResult == null)
             {
-                // Log the exception and return an appropriate error response
-                _logger.Log(ex.Message, LogLevel.Error);
-                return StatusCode(500, "An error occurred while checking the task status.");
+                return NotFound($"Task with ID {taskId} not found or not yet completed.");
             }
+
+            return Ok(taskResult);
         }
 
     }
