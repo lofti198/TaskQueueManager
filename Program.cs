@@ -1,20 +1,36 @@
 using Microsoft.EntityFrameworkCore;
+
 using RabbitMQ.Client;
+
 using ValidLoaderShared.Consts;
 using ValidLoaderShared.Context;
 using ValidLoaderShared.Utilities;
+using ValidLoaderShared.Utilities.Logging;
 
 
 try
 {
-    Console.WriteLine("TaskQueueManager Initializing...");
+    var builder = WebApplication.CreateBuilder(args);
+
+    var logger = VL_LoggerFactory.CreateLogger(LogType.Console | LogType.Serilog, "TaskQueueManager");
+
+    logger.Log("TaskQueueManager Initializing...");
 
     await CriticalServicesWaiters.WaitForSqlServer(VLDatabaseConstants.LocalDbConnectionString);
 
     await CriticalServicesWaiters.WaitForRabbitMQAndQueue("localhost", VLConstants.TaskNotificationQueue);
 
-    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddSingleton<ISimplifiedLogger>(logger);
 
+    // builder.Host.UseSerilog(); // Use Serilog for logging
+
+
+    builder.Services.AddSingleton<Microsoft.Extensions.Logging.ILogger>(sp =>
+    {
+        var serilogLogger = new SerilogLogger(null); // Assuming SerilogLogger is adapted to work without a decorator
+        var consoleLogger = new ConsoleLogger(serilogLogger); // Wrap Serilog with Console
+        return consoleLogger;
+    });
     // Configure the application to listen on specified ports
     builder.WebHost.UseUrls($"http://localhost:{VLConstants.TaskQueueManagerLocalPort}",
         $"https://localhost:{VLConstants.TaskQueueManagerLocalPort + 1}");
