@@ -13,11 +13,20 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    // Set up configuration sources.
+    builder.Configuration
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+        .AddEnvironmentVariables();
+
     var logger = VL_LoggerFactory.CreateLogger(LogType.Console | LogType.Serilog, "TaskQueueManager",false);
 
     logger.Log("TaskQueueManager Initializing...");
 
-    await CriticalServicesWaiters.WaitForSqlServer(VLDatabaseConstants.LocalDbConnectionString);
+    string sqlserverConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+    await CriticalServicesWaiters.WaitForSqlServer(sqlserverConnectionString);
 
     await CriticalServicesWaiters.WaitForRabbitMQAndQueue("localhost", VLConstants.TaskNotificationQueue);
 
@@ -28,9 +37,10 @@ try
         $"https://localhost:{VLConstants.TaskQueueManagerLocalPort + 1}");
 
     // Add services to the container.
-    Console.WriteLine($"Connecting DB with connection string: {builder.Configuration.GetConnectionString("DefaultConnection")}");
+    Console.WriteLine($"Connecting DB with connection string: " + sqlserverConnectionString);
+    // $"{builder.Configuration.GetConnectionString("DefaultConnection")}");
     builder.Services.AddDbContext<PageLoaderServiceContext>(options =>
-        options.UseSqlServer(VLDatabaseConstants.LocalDbConnectionString));
+        options.UseSqlServer(sqlserverConnectionString));//);
            
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

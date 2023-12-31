@@ -22,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ValidLoaderShared\ValidLoaderShared.csproj" />
+    <Reference Include="ValidLoaderShared">
+      <HintPath>..\ValidLoaderShared\bin\Debug\net7.0\ValidLoaderShared.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
