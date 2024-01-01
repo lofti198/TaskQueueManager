@@ -24,11 +24,14 @@ try
 
     logger.Log("TaskQueueManager Initializing...");
 
-    string sqlserverConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    string rabbitMQHost = Environment.GetEnvironmentVariable("RABBIT_MQ_HOST");
+    Console.WriteLine($"rabbitMQHost: " + rabbitMQHost);
 
+    string sqlserverConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");// builder.Configuration.GetConnectionString("DefaultConnection");
+    Console.WriteLine($"Connecting DB with connection string: " + sqlserverConnectionString);
     await CriticalServicesWaiters.WaitForSqlServer(sqlserverConnectionString);
 
-    await CriticalServicesWaiters.WaitForRabbitMQAndQueue("localhost", VLConstants.TaskNotificationQueue);
+    await CriticalServicesWaiters.WaitForRabbitMQAndQueue(rabbitMQHost, VLConstants.TaskNotificationQueue);
 
     builder.Services.AddSingleton<ISimplifiedLogger>(logger);
 
@@ -37,7 +40,7 @@ try
         $"https://localhost:{VLConstants.TaskQueueManagerLocalPort + 1}");
 
     // Add services to the container.
-    Console.WriteLine($"Connecting DB with connection string: " + sqlserverConnectionString);
+
     // $"{builder.Configuration.GetConnectionString("DefaultConnection")}");
     builder.Services.AddDbContext<PageLoaderServiceContext>(options =>
         options.UseSqlServer(sqlserverConnectionString));//);
@@ -48,7 +51,7 @@ try
     builder.Services.AddSwaggerGen();
 
     // Register ConnectionFactory as a singleton
-    builder.Services.AddSingleton(new ConnectionFactory() { HostName = "localhost" });
+    builder.Services.AddSingleton(new ConnectionFactory() { HostName = rabbitMQHost });
 
 
     var app = builder.Build();
