@@ -11,6 +11,7 @@
     using System.Threading.Tasks;
     using ValidLoaderShared.Consts;
     using ValidLoaderShared.Context;
+    using ValidLoaderShared.MiddleWare;
     using ValidLoaderShared.Models;
     using ValidLoaderShared.Structs;
     using ValidLoaderShared.Utilities;
@@ -18,6 +19,7 @@
 
     [Route("api/[controller]")]
     [ApiController]
+    [ApiKeyAuth]
     public class TaskQueueServiceController : ControllerBase
     {
         private readonly PageLoaderServiceContext _context; // Replace with your actual DbContext
@@ -52,6 +54,7 @@
         }
 
         // Inside the TaskQueueServiceController class
+        // https://localhost:5021/api/TaskQueueService/GetAllResults/
         [HttpGet("GetAllResults")]
         public async Task<ActionResult<IEnumerable<TaskProcessingResult>>> GetAllResults()
         {
