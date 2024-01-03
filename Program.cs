@@ -20,17 +20,17 @@ try
         .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
         .AddEnvironmentVariables();
 
-    var logger = VL_LoggerFactory.CreateLogger(LogType.Console | LogType.Serilog, "TaskQueueManager",false);
+    var logger = VL_LoggerFactory.CreateLogger(LogType.Console, "TaskQueueManager",false);
 
     logger.Log("TaskQueueManager Initializing...");
 
-    string rabbitMQHost = Environment.GetEnvironmentVariable("RABBIT_MQ_HOST");
-    Console.WriteLine($"rabbitMQHost: " + rabbitMQHost);
 
     string sqlserverConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");// builder.Configuration.GetConnectionString("DefaultConnection");
-    Console.WriteLine($"Connecting DB with connection string: " + sqlserverConnectionString);
+    logger.Log($"Connecting DB with connection string: " + sqlserverConnectionString);
     await CriticalServicesWaiters.WaitForSqlServer(sqlserverConnectionString);
 
+    string rabbitMQHost = Environment.GetEnvironmentVariable("RABBIT_MQ_HOST");
+    logger.Log($"Connecting  to RabbitMQ with rabbitMQHost: " + rabbitMQHost);
     await CriticalServicesWaiters.WaitForRabbitMQAndQueue(rabbitMQHost, VLConstants.TaskNotificationQueue);
 
     builder.Services.AddSingleton<ISimplifiedLogger>(logger);
@@ -41,7 +41,6 @@ try
 
     // Add services to the container.
 
-    // $"{builder.Configuration.GetConnectionString("DefaultConnection")}");
     builder.Services.AddDbContext<PageLoaderServiceContext>(options =>
         options.UseSqlServer(sqlserverConnectionString));//);
            
