@@ -13,6 +13,8 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    builder.Services.AddHttpClient();
+
     // Set up configuration sources.
     builder.Configuration
         .SetBasePath(Directory.GetCurrentDirectory())
@@ -25,11 +27,11 @@ try
     logger.Log("TaskQueueManager Initializing...");
 
 
-    string sqlserverConnectionString = Environment.GetEnvironmentVariable("DB_CONNECTION");// builder.Configuration.GetConnectionString("DefaultConnection");
+    string sqlserverConnectionString = Environment.GetEnvironmentVariable(VLConstants.ENV_VAR_NAME_DbConnection);// builder.Configuration.GetConnectionString("DefaultConnection");
     logger.Log($"Connecting DB with connection string: " + sqlserverConnectionString);
     await CriticalServicesWaiters.WaitForSqlServer(sqlserverConnectionString);
 
-    string rabbitMQHost = Environment.GetEnvironmentVariable("RABBIT_MQ_HOST");
+    string rabbitMQHost = Environment.GetEnvironmentVariable(VLConstants.ENV_VAR_NAME_RabbitMQHost);
     logger.Log($"Connecting  to RabbitMQ with rabbitMQHost: " + rabbitMQHost);
     await CriticalServicesWaiters.WaitForRabbitMQAndQueue(rabbitMQHost, VLConstants.TaskNotificationQueue);
 
@@ -44,13 +46,13 @@ try
     builder.Services.AddDbContext<PageLoaderServiceContext>(options =>
         options.UseSqlServer(sqlserverConnectionString));//);
            
-    builder.Services.AddControllers();
+    // builder.Services.AddControllers();
 
     //// Register your ApiKeyAuthAttribute here
-    //builder.Services.AddControllers(options =>
-    //{
-    //    options.Filters.Add<ApiKeyAuthAttribute>(); // Apply filter globally
-    //});
+    builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add<ApiKeyAuthAttribute>(); // Apply filter globally
+    });
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
