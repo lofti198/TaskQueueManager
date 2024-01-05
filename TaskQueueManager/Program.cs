@@ -45,14 +45,14 @@ try
 
     builder.Services.AddDbContext<PageLoaderServiceContext>(options =>
         options.UseSqlServer(sqlserverConnectionString));//);
-           
+
     // builder.Services.AddControllers();
 
     //// Register your ApiKeyAuthAttribute here
-    builder.Services.AddControllers(options =>
-    {
-        options.Filters.Add<ApiKeyAuthAttribute>(); // Apply filter globally
-    });
+    builder.Services.AddControllers();//options =>
+    //{
+    //    options.Filters.Add<ApiKeyAuthAttribute>(); // Apply filter globally
+    //});
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
@@ -78,7 +78,8 @@ try
 
     app.UseStaticFiles(); // Enable serving static files
     app.UseRouting();
-    app.UseAuthorization();
+    // Removed since using my own auth based on API key
+    // app.UseAuthorization();
 
     app.MapControllers();
     // Serve the index.html file on the root URL
