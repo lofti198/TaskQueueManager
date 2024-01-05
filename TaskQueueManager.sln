@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskQueueManager", "TaskQueueManager.csproj", "{1703ED17-6469-4F13-A2E5-B69593C70275}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskQueueManager", "TaskQueueManager\TaskQueueManager.csproj", "{1703ED17-6469-4F13-A2E5-B69593C70275}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidLoaderShared", "ValidLoaderShared\ValidLoaderShared.csproj", "{FE55B53D-39DC-4B6C-AB76-135E1C27954D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{1703ED17-6469-4F13-A2E5-B69593C70275}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1703ED17-6469-4F13-A2E5-B69593C70275}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1703ED17-6469-4F13-A2E5-B69593C70275}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE55B53D-39DC-4B6C-AB76-135E1C27954D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE55B53D-39DC-4B6C-AB76-135E1C27954D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE55B53D-39DC-4B6C-AB76-135E1C27954D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE55B53D-39DC-4B6C-AB76-135E1C27954D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
